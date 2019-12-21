@@ -4,7 +4,7 @@ from pydicom.data import get_testdata_files
 
 print(__doc__)
 
-filename = get_testdata_files('MR-SIEMENS-DICOM-WithOverlays.dcm')[0]
+filename = get_testdata_files('MR_small.dcm')[0]
 dataset = pydicom.dcmread(filename)
 
 # Normal mode:
