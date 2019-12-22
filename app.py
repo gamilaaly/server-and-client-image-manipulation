@@ -1,3 +1,4 @@
+import dicom
 import numpy as np
 import cv2
 import pandas as pd
@@ -142,12 +143,13 @@ def dicom_to_img(lstFilesDCM, ArrayDicom, x, y):
         plt.figure(dpi=300)
         plt.set_cmap(plt.gray())
         plt.pcolormesh(x, y, np.flipud(ArrayDicom[:, :, i]))
-        plt.savefig('img'+str(i)+'.png')
+        plt.savefig('./Images/img'+str(i)+'.png')
 
-
-PathDicom = "./MyHead/"
-lstFilesDCM = dicom_files(PathDicom)
-RefDs, ConstPixelDims, x, y = get_dicom_dimensions(lstFilesDCM)
-extract_metadata(RefDs)
-Dicom_Array = create_array_dicom(lstFilesDCM, ConstPixelDims, RefDs)
-dicom_to_img(lstFilesDCM, Dicom_Array, x, y)
+def process(path):
+    PathDicom = path + "/"
+    #PathDicom = "./MyHead/"
+    lstFilesDCM = dicom_files(PathDicom)
+    RefDs, ConstPixelDims, x, y = get_dicom_dimensions(lstFilesDCM)
+    extract_metadata(RefDs)
+    Dicom_Array = create_array_dicom(lstFilesDCM, ConstPixelDims, RefDs)
+    dicom_to_img(lstFilesDCM, Dicom_Array, x, y)

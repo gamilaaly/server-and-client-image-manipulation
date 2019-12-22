@@ -1,7 +1,0 @@
-Patient's name...:Adamos, Kyriacon
-Patient id.......:556130
-Modality.........:MR
-Study Date.......:20111110
-Image size.......: 256 x 256, 131072 bytes
-Pixel spacing....:['0.9765625', '0.9765625']
-Slice location...:-87
