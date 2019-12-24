@@ -12,6 +12,7 @@ import shutil
 
 class ApplicationWindow(QtWidgets.QMainWindow):
     Directory = ''
+
     def __init__(self):
         super(ApplicationWindow, self).__init__()
         self.ui = Ui_MainWindow()
@@ -25,31 +26,33 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.ui.videoButton.clicked.connect(self.requestVideo)
         self.ui.imageButton.clicked.connect(self.requestImage)
         self.ui.sendButton.clicked.connect(self.send_file)
+        self.ui.contourButton.clicked.connect(self.requestContour)
 
         print("before connecting")
 
-    def connect_with_server (self):
+    def connect_with_server(self):
         print("pressed connect")
         global s
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('127.0.0.1', 12445))
+        IP = self.ui.ip_edit.text()
+        PORT = int(self.ui.port_edit.text())
+        s.connect((IP, PORT))
         print("connected")
 
-
     def send_file(self):
-        shutil.make_archive("MyHead", 'zip', self.Directory)
         msg = "Patient"
         msg = f"{len(msg):<{HEADERSIZE}}" + msg
         s.send(bytes(msg, "utf-8"))
         time.sleep(1)
-        easySocket.send_file("MyHead.zip",s)
+        shutil.make_archive("MyHead", 'zip', self.Directory)  # compress
+        easySocket.send_file("MyHead.zip", s)
 
-    def disconnect (self):
-        print ("disconnected")
+    def disconnect(self):
+        print("disconnected")
         global s
         s.close()
 
-    def browse (self):
+    def browse(self):
         self.Directory = QFileDialog.getExistingDirectory(self, 'Choose Directory', os.path.expanduser('~'))
         self.ui.lineEdit.setText(self.Directory)
 
@@ -74,9 +77,23 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         msg = f"{len(msg):<{HEADERSIZE}}" + msg
         s.send(bytes(msg, "utf-8"))
         image = easySocket.rcv_data(s)
-        f = open("img0Rec.png", 'wb')
+        f = open("rec_img.png", 'wb')
         f.write(image)
-        pixmap = QPixmap("g.png")
+        pixmap = QPixmap("rec_img.png")
+        pixmap = pixmap.scaled(int(pixmap.height()), int(pixmap.width()), QtCore.Qt.KeepAspectRatio)
+        self.ui.imageLabel.setPixmap(pixmap)
+        self.ui.imageLabel.setScaledContents(True)
+        self.ui.imageLabel.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+    def requestContour(self):
+        print("Requesting Contour Image")
+        msg = "Contour"
+        msg = f"{len(msg):<{HEADERSIZE}}" + msg
+        s.send(bytes(msg, "utf-8"))
+        image = easySocket.rcv_data(s)
+        f = open("rec_contour_img.png", 'wb')
+        f.write(image)
+        pixmap = QPixmap("rec_contour_img.png")
         pixmap = pixmap.scaled(int(pixmap.height()), int(pixmap.width()), QtCore.Qt.KeepAspectRatio)
         self.ui.imageLabel.setPixmap(pixmap)
         self.ui.imageLabel.setScaledContents(True)
@@ -88,11 +105,10 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         msg = f"{len(msg):<{HEADERSIZE}}" + msg
         s.send(bytes(msg, "utf-8"))
         video = easySocket.rcv_data(s)
-        f = open("MyHead.avi", 'wb')
+        f = open("MyHeadRecieved_client.zip", 'wb')
         f.write(video)
-
-
-
+        shutil.unpack_archive("MyHeadRecieved_client.zip", "./video_unzipped", 'zip')
+        print("video Unzipped")
 
 
 def main():
