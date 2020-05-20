@@ -142,10 +142,10 @@ def dicom_to_img(lstFilesDCM, ArrayDicom, x, y):
         plt.figure(dpi=300)
         plt.set_cmap(plt.gray())
         plt.pcolormesh(x, y, np.flipud(ArrayDicom[:, :, i]))
-        plt.savefig('./Images/img'+str(i)+'.png')
+        plt.savefig('./Images/img'+str(i).zfill(6)+'.png')
 
 def contour():
-    inputImage = cv2.imread('Images/img100.png')
+    inputImage = cv2.imread('Images/img000100.png')
     scale_percent = 40  # percent of original size
     width = int(inputImage.shape[1] * scale_percent / 100)
     height = int(inputImage.shape[0] * scale_percent / 100)

@@ -12,7 +12,6 @@ import shutil
 import Processing
 import ImgToVideo
 
-
 class ApplicationWindow(QtWidgets.QMainWindow):
     image_flag = False
     IP = ''
@@ -33,10 +32,10 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         th_listen = threading.Thread(target=self.listen_function, args=())
 
     def bind(self):
-        self.IP = self.ui.ip_edit.text()
+        self.IP = str(self.ui.ip_edit.text())
         self.PORT = self.ui.port_edit.text()
         self.PORT = int(self.PORT)
-        server_socket.bind((self.IP, self.PORT))
+        server_socket.bind(("", self.PORT))
 
     def listen(self):
         th_listen.start()
@@ -77,10 +76,11 @@ class ApplicationWindow(QtWidgets.QMainWindow):
                     dicom = easySocket.rcv_data(clientsocket)
                     f = open("Patient_File.zip", 'wb')
                     f.write(dicom)
-                    shutil.unpack_archive("Patient_File.zip", "./unzippedMyHead", 'zip')  # decompress
+                    shutil.unpack_archive("MyHead.zip", "./unzippedMyHead", 'zip')  # decompress
                     Processing.process("./unzippedMyHead")
                     QApplication.processEvents()
                     ImgToVideo.img_to_video()
+                    print("ALL DONE")
 
 
                 if str(full_msg[HEADERSIZE:]) == "Info":
@@ -91,19 +91,25 @@ class ApplicationWindow(QtWidgets.QMainWindow):
                     print("Requesting Image")
                     self.set_image()
                     self.image_flag = True
-                    easySocket.send_file("Images/img100.png", clientsocket)
+                    easySocket.send_file("Images/img000100.png", clientsocket)
 
                 if str(full_msg[HEADERSIZE:]) == "Contour":
                     print("Requesting Image")
+                    pixmap = QPixmap("Tumor_Contour.png")  # needs to modify image
+                    pixmap = pixmap.scaled(int(pixmap.height()), int(pixmap.width()), QtCore.Qt.KeepAspectRatio)
+                    self.ui.image_label.setPixmap(pixmap)
+                    self.ui.image_label.setScaledContents(True)
+                    self.ui.image_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
                     easySocket.send_file("Tumor_Contour.png", clientsocket)
 
                 if str(full_msg[HEADERSIZE:]) == "Video":
                     print("Requesting Video!")
+      #              myVideo.VideoPlayer.abrir(ApplicationWindow,"drop.avi")
                     shutil.make_archive("MyHeadVideo", 'zip', "./server_video")
                     easySocket.send_file("MyHeadVideo.zip", clientsocket)
-
+                    easySocket.send_file("drop.avi", clientsocket)
     def set_image(self):
-        pixmap = QPixmap("Images/img100.png")  # needs to modify image
+        pixmap = QPixmap("Images/img000100.png")  # needs to modify image
         pixmap = pixmap.scaled(int(pixmap.height()), int(pixmap.width()), QtCore.Qt.KeepAspectRatio)
         self.ui.image_label.setPixmap(pixmap)
         self.ui.image_label.setScaledContents(True)

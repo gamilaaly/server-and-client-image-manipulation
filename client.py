@@ -8,7 +8,7 @@ import easySocket
 from PyQt5.QtGui import QPixmap
 import os
 import shutil
-
+import myVideo
 
 class ApplicationWindow(QtWidgets.QMainWindow):
     Directory = ''
@@ -64,7 +64,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         time.sleep(1)
         info = easySocket.rcv_data(s)
         print(info)
-        f = open("Patient_Data.txt", 'wb')
+        f = open("Patient_Data_Rec.txt", 'wb')
         f.write(info)
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
@@ -105,6 +105,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         msg = f"{len(msg):<{HEADERSIZE}}" + msg
         s.send(bytes(msg, "utf-8"))
         video = easySocket.rcv_data(s)
+        f =open("rec.avi", 'wb')
+        f.write(video)
+        #myVideo.VideoPlayer.abrir(myVideo.VideoPlayer, "rec.avi")
         f = open("MyHeadRecieved_client.zip", 'wb')
         f.write(video)
         shutil.unpack_archive("MyHeadRecieved_client.zip", "./video_unzipped", 'zip')
